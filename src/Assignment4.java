@@ -1,24 +1,21 @@
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.sql.*;
-import java.time.YearMonth;
 import java.util.Calendar;
 import java.text.SimpleDateFormat;
-import java.io.File;
 import javafx.util.Pair;
 import java.util.ArrayList;
+import java.time.YearMonth;
 import java.time.LocalDate;
-import java.io.*;
 
 
 public class Assignment4 {
 
     private Connection connection = null;
-    private final String username = "sa";
-    private final String password = "reallyStrongPwd123";
-    private final String connectionUrl = "jdbc:sqlserver://localhost;databaseName=DB2019_Ass2;integratedSecurity=false";
+    private final String username = "";
+    private final String password = "";
+    private final String connectionUrl = "jdbc:sqlserver://localhost;integratedSecurity=false";
     private final String driver = "com.microsoft.sqlserver.jdbc.SQLServerDriver";
+
 
     private Assignment4() {
         Connector();
@@ -70,53 +67,19 @@ public class Assignment4 {
     }
 
 
+
     public static void main(String[] args) {
-
-        //  String testFuncStart1 = "initDB,/Users/eranedri/Documents/test/data/DB2019_Project_Ass4_DDL.sql\n";
-        //  String testFuncStart2 = "initDB,/Users/eranedri/Documents/test/data/DB2019_Project_Ass4_DDL.sql\n";
-        String testFunc1 = "loadNeighborhoodsFromCsv,/Users/eranedri/Documents/test/data/neighborhoods.csv";
-        String testFunc2 = "updateEmployeeSalaries,10";
-        String testFunc3 = "updateAllProjectsBudget,20";
-        String testFunc4 = "getEmployeeTotalSalary";
-        String testFunc5 = "getTotalProjectBudget";
-        String testFunc6 = "calculateIncomeFromParking,2018";
-        String testFunc7 = "getMostProfitableParkingAreas";
-        String testFunc8 = "getNumberOfParkingByArea";
-        String testFunc9 = "getNumberOfDistinctCarsByArea";
-        String testFunc10 = "AddEmployee,302546056,edri,eran,1990-05-03,ayalon,169,1,shoham";
-        //String testFuncFinish = "dropDB";
-
         File file = new File(".");
-        //   String csvFile = args[0];
+        String csvFile = args[0];
         String line = "";
         String cvsSplitBy = ",";
         Assignment4 ass = new Assignment4();
-        //  try (BufferedReader br = new BufferedReader(new FileReader(csvFile))) {
-        try {
-            //     while ((line = br.readLine()) != null) {
-            String[] row1 = testFunc1.split(cvsSplitBy);
-            //     executeFunc(ass, row1);
-            String[] row2 = testFunc2.split(cvsSplitBy);
-            //  executeFunc(ass, row2);
-            String[] row3 = testFunc3.split(cvsSplitBy);
-            //  executeFunc(ass, row3);
-            String[] row4 = testFunc4.split(cvsSplitBy);
-            //  executeFunc(ass, row4);
-            String[] row5 = testFunc5.split(cvsSplitBy);
-            //   executeFunc(ass, row5);
-            String[] row6 = testFunc6.split(cvsSplitBy);
-            //   executeFunc(ass, row6);
-            String[] row7 = testFunc7.split(cvsSplitBy);
-            //    executeFunc(ass, row7);
-            String[] row8 = testFunc8.split(cvsSplitBy);
-            //     executeFunc(ass, row8);
-            String[] row9 = testFunc9.split(cvsSplitBy);
-            //  executeFunc(ass, row9);
-            String[] row10 = testFunc10.split(cvsSplitBy);
-            executeFunc(ass, row10);
-
-            //       }
-        } catch (Exception e) {
+        try (BufferedReader br = new BufferedReader(new FileReader(csvFile))) {
+            while ((line = br.readLine()) != null) {
+                String[] row = line.split(cvsSplitBy);
+                executeFunc(ass, row);
+            }
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
@@ -127,8 +90,6 @@ public class Assignment4 {
         try {
             Class.forName(this.driver);
             this.connection = DriverManager.getConnection(this.connectionUrl,this.username,this.password);
-
-            connection.setAutoCommit(false);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -144,7 +105,8 @@ public class Assignment4 {
 
 
 
-    private void loadNeighborhoodsFromCsv(String csvPath){
+
+    private void loadNeighborhoodsFromCsv(String csvPath) {
         String cvsSplitBy = ",";
         String line;
         if(this.connection==null){
@@ -166,9 +128,10 @@ public class Assignment4 {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+        Disconnector();
     }
 
-    private void updateEmployeeSalaries(double percentage){
+    private void updateEmployeeSalaries(double percentage) {
         if(this.connection==null){
             Connector();
         }
@@ -176,7 +139,6 @@ public class Assignment4 {
             Statement stmt = connection.createStatement(
                     ResultSet.TYPE_SCROLL_SENSITIVE,
                     ResultSet.CONCUR_UPDATABLE);
-
             stmt.executeQuery("SELECT ce.* FROM [ConstructorEmployee] ce , [Employee] e WHERE e.EID = ce.EID AND (DATEDIFF(year, e.BirthDate, GETDATE()) > 50)");
             ResultSet results = stmt.getResultSet();
             while (results.next())
@@ -189,10 +151,11 @@ public class Assignment4 {
         } catch (SQLException e){
             e.printStackTrace();
         }
+        Disconnector();
     }
 
 
-    public void updateAllProjectsBudget(double percentage){
+    public void updateAllProjectsBudget(double percentage) {
         if(this.connection==null){
             Connector();
         }
@@ -213,10 +176,11 @@ public class Assignment4 {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+        Disconnector();
     }
 
 
-    private double getEmployeeTotalSalary(){
+    private double getEmployeeTotalSalary() {
         int ans = 0;
         if(this.connection==null){
             Connector();
@@ -233,6 +197,7 @@ public class Assignment4 {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+        Disconnector();
         return (double)ans;
     }
 
@@ -254,9 +219,9 @@ public class Assignment4 {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        Disconnector();
         return ans;
     }
-
 
     private void dropDB() {
         if(this.connection==null){
@@ -266,26 +231,32 @@ public class Assignment4 {
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
             pstmt.executeUpdate();
             connection.commit();
-            connection.close();
+            Disconnector();
         } catch (SQLException e) {
-            //Handle errors for JDBC
             e.printStackTrace();
         }catch(Exception e2){
-            //Handle errors for Class.forName
             e2.printStackTrace();
         }
     }
 
-    private void initDB(String csvPath) {
-//        String line;
-//        Process p = Runtime.getRuntime().exec("psql -U username -d dbname -h serverhost -f scripfile.sql");
-//        BufferedReader input = new BufferedReader(new InputStreamReader(p.getInputStream()));
-//        while ((line = input.readLine()) != null) {
-//            System.out.println(line);
-//        }
-//        input.close();
-    }
 
+    private void initDB(String csvPath) {
+        if(this.connection==null){
+            Connector();
+        }
+        try {
+            String line;
+            Process p = Runtime.getRuntime().exec("cmd.exe /c psql -U this.username -d DB2019_Ass2 -h localhost -f csvPath");
+            BufferedReader input = new BufferedReader(new InputStreamReader(p.getInputStream()));
+            while ((line = input.readLine()) != null) {
+                System.out.println(line);
+            }
+            input.close();
+            Disconnector();
+        }catch (IOException e){
+            e.printStackTrace();
+        }
+    }
 
     private int calculateIncomeFromParking(int year) {
         YearMonth YMStart = YearMonth.of(year,1);
@@ -309,10 +280,11 @@ public class Assignment4 {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        Disconnector();
         return ans;
     }
 
-    private ArrayList<Pair<Integer, Integer>> getMostProfitableParkingAreas() { //<ParkingAreaID,Total Profit>
+    private ArrayList<Pair<Integer, Integer>> getMostProfitableParkingAreas() {
         if(this.connection==null){
             Connector();
         }
@@ -332,11 +304,11 @@ public class Assignment4 {
         } catch (SQLException e){
             e.printStackTrace();
         }
+        Disconnector();
         return ProfitParkingAreas;
     }
 
-
-    private ArrayList<Pair<Integer, Integer>> getNumberOfParkingByArea() { // <ParkingAreaID, Parking Number>
+    private ArrayList<Pair<Integer, Integer>> getNumberOfParkingByArea() {
         if(this.connection==null){
             Connector();
         }
@@ -355,11 +327,12 @@ public class Assignment4 {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+        Disconnector();
         return NumParkingAreas;
     }
 
 
-    private ArrayList<Pair<Integer, Integer>> getNumberOfDistinctCarsByArea() { //<ParkingAreaID,Distinct Cars Number>
+    private ArrayList<Pair<Integer, Integer>> getNumberOfDistinctCarsByArea() {
         if(this.connection==null){
             Connector();
         }
@@ -378,6 +351,7 @@ public class Assignment4 {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+        Disconnector();
         return NumDistinctCarsByArea;
     }
 
@@ -401,5 +375,17 @@ public class Assignment4 {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+        Disconnector();
     }
 }
+
+
+//    String testFuncStart1 = "initDB,/Users/eranedri/Documents/test/data/DB2019_Project_Ass4_DDL.sql";
+//    String testFuncStart2 = "initDB,/Users/eranedri/Documents/test/data/gen.sql";
+//    String testFuncFinish = "dropDB";
+//    String[] test1 = testFuncStart1.split(cvsSplitBy);
+//    String[] test2 = testFuncStart2.split(cvsSplitBy);
+//    String[] test3 = testFuncFinish.split(cvsSplitBy);
+//    executeFunc(ass, test1);
+//    executeFunc(ass, test2);
+//    executeFunc(ass, test3);
