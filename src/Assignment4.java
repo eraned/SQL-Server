@@ -72,8 +72,8 @@ public class Assignment4 {
 
     public static void main(String[] args) {
 
-      //  String testFuncStart1 = "initDB,/Users/eranedri/Documents/test/data/DB2019_Project_Ass4_DDL.sql\n";
-      //  String testFuncStart2 = "initDB,/Users/eranedri/Documents/test/data/DB2019_Project_Ass4_DDL.sql\n";
+        //  String testFuncStart1 = "initDB,/Users/eranedri/Documents/test/data/DB2019_Project_Ass4_DDL.sql\n";
+        //  String testFuncStart2 = "initDB,/Users/eranedri/Documents/test/data/DB2019_Project_Ass4_DDL.sql\n";
         String testFunc1 = "loadNeighborhoodsFromCsv,/Users/eranedri/Documents/test/data/neighborhoods.csv";
         String testFunc2 = "updateEmployeeSalaries,10";
         String testFunc3 = "updateAllProjectsBudget,20";
@@ -107,11 +107,11 @@ public class Assignment4 {
             String[] row6 = testFunc6.split(cvsSplitBy);
             //   executeFunc(ass, row6);
             String[] row7 = testFunc7.split(cvsSplitBy);
-        //    executeFunc(ass, row7);
+            //    executeFunc(ass, row7);
             String[] row8 = testFunc8.split(cvsSplitBy);
-       //     executeFunc(ass, row8);
+            //     executeFunc(ass, row8);
             String[] row9 = testFunc9.split(cvsSplitBy);
-          //  executeFunc(ass, row9);
+            //  executeFunc(ass, row9);
             String[] row10 = testFunc10.split(cvsSplitBy);
             executeFunc(ass, row10);
 
@@ -277,16 +277,16 @@ public class Assignment4 {
     }
 
     private void initDB(String csvPath) {
-            String line;
-            Process p = Runtime.getRuntime().exec("psql -U username -d dbname -h serverhost -f scripfile.sql");
-            BufferedReader input = new BufferedReader(new InputStreamReader(p.getInputStream()));
-            while ((line = input.readLine()) != null) {
-                System.out.println(line);
-            }
-            input.close();
+//        String line;
+//        Process p = Runtime.getRuntime().exec("psql -U username -d dbname -h serverhost -f scripfile.sql");
+//        BufferedReader input = new BufferedReader(new InputStreamReader(p.getInputStream()));
+//        while ((line = input.readLine()) != null) {
+//            System.out.println(line);
+//        }
+//        input.close();
     }
 
-    
+
     private int calculateIncomeFromParking(int year) {
         YearMonth YMStart = YearMonth.of(year,1);
         YearMonth YMFinish = YearMonth.of(year,12);
