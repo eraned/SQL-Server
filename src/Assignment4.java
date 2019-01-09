@@ -13,7 +13,7 @@ public class Assignment4 {
     private Connection connection = null;
     private final String username = "";
     private final String password = "";
-    private final String connectionUrl = "jdbc:sqlserver://localhost;integratedSecurity=false";
+    private final String connectionUrl = "jdbc:sqlserver://localhost;integratedSecurity=true";
     private final String driver = "com.microsoft.sqlserver.jdbc.SQLServerDriver";
 
 
@@ -21,7 +21,7 @@ public class Assignment4 {
         Connector();
     }
 
-    public static void executeFunc(Assignment4 ass, String[] args) {
+    public static void executeFunc(Assignment4 ass, String[] args) throws SQLException {
         String funcName = args[0];
         switch (funcName) {
             case "loadNeighborhoodsFromCsv":
@@ -79,11 +79,10 @@ public class Assignment4 {
                 String[] row = line.split(cvsSplitBy);
                 executeFunc(ass, row);
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
-
 
 
     public void Connector(){
@@ -109,11 +108,10 @@ public class Assignment4 {
     private void loadNeighborhoodsFromCsv(String csvPath) {
         String cvsSplitBy = ",";
         String line;
-        if(this.connection==null){
-            Connector();
-        }
         String sql = "INSERT INTO Neighborhood(NID,Name) VALUES(?,?)";
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            if(connection.isClosed())
+                Connector();
             try (BufferedReader br = new BufferedReader(new FileReader(csvPath))) {
                 while ((line = br.readLine()) != null) {
                     String[] row = line.split(cvsSplitBy);
@@ -132,10 +130,9 @@ public class Assignment4 {
     }
 
     private void updateEmployeeSalaries(double percentage) {
-        if(this.connection==null){
-            Connector();
-        }
         try{
+            if(connection.isClosed())
+                Connector();
             Statement stmt = connection.createStatement(
                     ResultSet.TYPE_SCROLL_SENSITIVE,
                     ResultSet.CONCUR_UPDATABLE);
@@ -156,14 +153,12 @@ public class Assignment4 {
 
 
     public void updateAllProjectsBudget(double percentage) {
-        if(this.connection==null){
-            Connector();
-        }
         try{
+            if(connection.isClosed())
+                Connector();
             Statement stmt = connection.createStatement(
                     ResultSet.TYPE_SCROLL_SENSITIVE,
                     ResultSet.CONCUR_UPDATABLE);
-
             stmt.executeQuery("SELECT Project.* FROM Project");
             ResultSet results = stmt.getResultSet();
             while (results.next())
@@ -182,10 +177,10 @@ public class Assignment4 {
 
     private double getEmployeeTotalSalary() {
         int ans = 0;
-        if(this.connection==null){
-            Connector();
-        }
         try{
+
+            if(connection.isClosed())
+                Connector();
             Statement stmt = connection.createStatement();
             stmt.executeQuery("SELECT ConstructorEmployee.* FROM ConstructorEmployee");
             ResultSet results = stmt.getResultSet();
@@ -204,10 +199,10 @@ public class Assignment4 {
 
     private int getTotalProjectBudget() {
         int ans = 0;
-        if(this.connection==null){
-            Connector();
-        }
+
         try{
+            if(connection.isClosed())
+                Connector();
             Statement stmt = connection.createStatement();
             stmt.executeQuery("SELECT Project.* FROM Project");
             ResultSet results = stmt.getResultSet();
@@ -223,10 +218,9 @@ public class Assignment4 {
         return ans;
     }
 
-    private void dropDB() {
-        if(this.connection==null){
+    private void dropDB() throws SQLException {
+        if(connection.isClosed())
             Connector();
-        }
         String sql = "DROP DATABASE DB2019_Ass2";
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
             pstmt.executeUpdate();
@@ -241,32 +235,30 @@ public class Assignment4 {
 
 
     private void initDB(String csvPath) {
-        if(this.connection==null){
-            Connector();
-        }
         try {
+            if(connection.isClosed())
+                Connector();
             String line;
-            Process p = Runtime.getRuntime().exec("cmd.exe /c psql -U this.username -d DB2019_Ass2 -h localhost -f csvPath");
+            Process p = Runtime.getRuntime().exec("sqlcmd -S (local) -E -i " + csvPath);
             BufferedReader input = new BufferedReader(new InputStreamReader(p.getInputStream()));
             while ((line = input.readLine()) != null) {
                 System.out.println(line);
             }
             input.close();
             Disconnector();
-        }catch (IOException e){
+        }catch (Exception e){
             e.printStackTrace();
         }
     }
 
-    private int calculateIncomeFromParking(int year) {
+    private int calculateIncomeFromParking(int year) throws SQLException {
         YearMonth YMStart = YearMonth.of(year,1);
         YearMonth YMFinish = YearMonth.of(year,12);
         LocalDate StartDate = YMStart.atDay(1);
         LocalDate FinishDate = YMFinish.atEndOfMonth();
         int ans = 0;
-        if(this.connection==null){
+        if(connection.isClosed())
             Connector();
-        }
         String sql = "SELECT CarParking.* FROM CarParking WHERE StartTime >= ? AND EndTime  <= ?";
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
             pstmt.setDate(1, Date.valueOf(StartDate));
@@ -285,11 +277,10 @@ public class Assignment4 {
     }
 
     private ArrayList<Pair<Integer, Integer>> getMostProfitableParkingAreas() {
-        if(this.connection==null){
-            Connector();
-        }
         ArrayList<Pair<Integer, Integer>> ProfitParkingAreas = new ArrayList<>();int counter = 0;
         try{
+            if(connection.isClosed())
+                Connector();
             Statement stmt = connection.createStatement();
             stmt.executeQuery("SELECT AID,maxpriceperday FROM ParkingArea ORDER BY  maxpriceperday DESC");
             ResultSet results = stmt.getResultSet();
@@ -309,11 +300,10 @@ public class Assignment4 {
     }
 
     private ArrayList<Pair<Integer, Integer>> getNumberOfParkingByArea() {
-        if(this.connection==null){
-            Connector();
-        }
         ArrayList<Pair<Integer, Integer>> NumParkingAreas = new ArrayList<>(); //)");
         try{
+            if(connection.isClosed())
+                Connector();
             Statement stmt = connection.createStatement();
             stmt.executeQuery("SELECT ParkingAreaID,COUNT (*) AS ParkingCounter FROM CarParking GROUP BY ParkingAreaID");
             ResultSet results = stmt.getResultSet();
@@ -333,11 +323,11 @@ public class Assignment4 {
 
 
     private ArrayList<Pair<Integer, Integer>> getNumberOfDistinctCarsByArea() {
-        if(this.connection==null){
-            Connector();
-        }
+
         ArrayList<Pair<Integer, Integer>> NumDistinctCarsByArea = new ArrayList<>();
         try{
+            if(connection.isClosed())
+                Connector();
             Statement stmt = connection.createStatement();
             stmt.executeQuery("SELECT ParkingAreaID,COUNT(DISTINCT CID) AS CarCounter FROM CarParking GROUP BY ParkingAreaID");
             ResultSet results = stmt.getResultSet();
@@ -356,10 +346,9 @@ public class Assignment4 {
     }
 
 
-    private void AddEmployee(int EID, String LastName, String FirstName, Date BirthDate, String StreetName, int Number, int door, String City) {
-        if(this.connection==null){
+    private void AddEmployee(int EID, String LastName, String FirstName, Date BirthDate, String StreetName, int Number, int door, String City) throws SQLException {
+        if(connection.isClosed())
             Connector();
-        }
         String sql = "INSERT INTO Employee(EID,LastName,FirstName,BirthDate,StreetName,Number,door,City) VALUES(?,?,?,?,?,?,?,?)";
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
             pstmt.setInt(1, EID);
@@ -380,12 +369,3 @@ public class Assignment4 {
 }
 
 
-//    String testFuncStart1 = "initDB,/Users/eranedri/Documents/test/data/DB2019_Project_Ass4_DDL.sql";
-//    String testFuncStart2 = "initDB,/Users/eranedri/Documents/test/data/gen.sql";
-//    String testFuncFinish = "dropDB";
-//    String[] test1 = testFuncStart1.split(cvsSplitBy);
-//    String[] test2 = testFuncStart2.split(cvsSplitBy);
-//    String[] test3 = testFuncFinish.split(cvsSplitBy);
-//    executeFunc(ass, test1);
-//    executeFunc(ass, test2);
-//    executeFunc(ass, test3);
